@@ -30,3 +30,6 @@ _testmain.go
 .idea/
 .vscode/
 .DS_Store
+
+# Nchf_ConvergedCharging generation: fetched specs and generator output
+/tmp/

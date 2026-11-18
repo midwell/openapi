@@ -44,6 +44,9 @@ repos:
     rev: v0.21.0
     hooks:
       - id: yamlfmt
+        # The bundled 3GPP spec the Nchf client is generated from: yamlfmt
+        # rewrites escaped characters in its descriptions, changing their text.
+        exclude: ^Nchf_ConvergedCharging/api/
   - repo: https://github.com/lycheeverse/lychee
     rev: lychee-v0.24.2
     hooks:
