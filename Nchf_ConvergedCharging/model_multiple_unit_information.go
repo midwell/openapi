@@ -590,6 +590,13 @@ func (o *MultipleUnitInformation) UnmarshalJSON(data []byte) (err error) {
 		return err
 	}
 
+	// A finalUnitIndication without a finalUnitAction is absent
+	// (scripts/postprocess_nchf_handmods.sh).
+	if fui := varMultipleUnitInformation.FinalUnitIndication; fui != nil &&
+		(fui.FinalUnitAction == nil || fui.FinalUnitAction.String == nil || *fui.FinalUnitAction.String == "") {
+		varMultipleUnitInformation.FinalUnitIndication = nil
+	}
+
 	*o = MultipleUnitInformation(varMultipleUnitInformation)
 
 	return err

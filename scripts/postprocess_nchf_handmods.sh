@@ -28,6 +28,12 @@
 #      for *os.File dropped. It wrote the body to a temporary file through a
 #      local copy of the pointer, so the caller never saw it; **os.File
 #      still works.
+#   6. fui-without-action: MultipleUnitInformation drops a finalUnitIndication
+#      whose finalUnitAction is missing, null or empty: the indication only
+#      means something through its action. TS 32.291 makes the action
+#      mandatory, but free5gc's CHF sends an indication without an action
+#      with every grant; the curation makes it optional so that such an
+#      answer decodes.
 #
 # Last, every file gets the repository's SPDX header, and the package is
 # formatted with gofmt and with gci at the version the pre-commit hook runs.
@@ -109,6 +115,21 @@ elif [ "${matches}" = 0 ] && grep -q 'cannot specify postBody and multipart form
   echo "5. client-staticcheck: already applied" >&2
 else
   fail "client.go matches ${matches} of the 5 expected patterns"
+fi
+
+# --- 6. fui-without-action ---
+MUI="${PKG_DIR}/model_multiple_unit_information.go"
+[ "$(grep -l 'FinalUnitIndication \*FinalUnitIndication' "${PKG_DIR}"/model_*.go)" = "${MUI}" ] ||
+  fail "a model other than MultipleUnitInformation holds a FinalUnitIndication"
+if grep -q 'A finalUnitIndication without a finalUnitAction is absent' "${MUI}"; then
+  echo "6. fui-without-action: already applied" >&2
+elif perl -0777 -ne 'exit(!m/\n\t\*o = MultipleUnitInformation\(varMultipleUnitInformation\)\n/)' "${MUI}"; then
+  perl -0777 -pi -e '
+    s#\n\t\*o = MultipleUnitInformation\(varMultipleUnitInformation\)\n#\n\t// A finalUnitIndication without a finalUnitAction is absent\n\t// (scripts/postprocess_nchf_handmods.sh).\n\tif fui := varMultipleUnitInformation.FinalUnitIndication; fui != nil \&\&\n\t\t(fui.FinalUnitAction == nil || fui.FinalUnitAction.String == nil || *fui.FinalUnitAction.String == "") {\n\t\tvarMultipleUnitInformation.FinalUnitIndication = nil\n\t}\n\n\t*o = MultipleUnitInformation(varMultipleUnitInformation)\n#;
+  ' "${MUI}"
+  echo "6. fui-without-action: applied" >&2
+else
+  fail "MultipleUnitInformation.UnmarshalJSON has an unexpected form"
 fi
 
 # --- SPDX header ---

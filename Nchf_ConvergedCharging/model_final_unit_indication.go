@@ -15,7 +15,6 @@ package Nchf_ConvergedCharging
 
 import (
 	"encoding/json"
-	"fmt"
 )
 
 // checks if the FinalUnitIndication type satisfies the MappedNullable interface at compile time
@@ -23,23 +22,20 @@ var _ MappedNullable = &FinalUnitIndication{}
 
 // FinalUnitIndication struct for FinalUnitIndication
 type FinalUnitIndication struct {
-	FinalUnitAction           FinalUnitAction `json:"finalUnitAction"`
-	RestrictionFilterRule     *string         `json:"restrictionFilterRule,omitempty"`
-	RestrictionFilterRuleList []string        `json:"restrictionFilterRuleList,omitempty"`
-	FilterId                  *string         `json:"filterId,omitempty"`
-	FilterIdList              []string        `json:"filterIdList,omitempty"`
-	RedirectServer            *RedirectServer `json:"redirectServer,omitempty"`
+	FinalUnitAction           *FinalUnitAction `json:"finalUnitAction,omitempty"`
+	RestrictionFilterRule     *string          `json:"restrictionFilterRule,omitempty"`
+	RestrictionFilterRuleList []string         `json:"restrictionFilterRuleList,omitempty"`
+	FilterId                  *string          `json:"filterId,omitempty"`
+	FilterIdList              []string         `json:"filterIdList,omitempty"`
+	RedirectServer            *RedirectServer  `json:"redirectServer,omitempty"`
 }
-
-type _FinalUnitIndication FinalUnitIndication
 
 // NewFinalUnitIndication instantiates a new FinalUnitIndication object
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewFinalUnitIndication(finalUnitAction FinalUnitAction) *FinalUnitIndication {
+func NewFinalUnitIndication() *FinalUnitIndication {
 	this := FinalUnitIndication{}
-	this.FinalUnitAction = finalUnitAction
 	return &this
 }
 
@@ -51,28 +47,36 @@ func NewFinalUnitIndicationWithDefaults() *FinalUnitIndication {
 	return &this
 }
 
-// GetFinalUnitAction returns the FinalUnitAction field value
+// GetFinalUnitAction returns the FinalUnitAction field value if set, zero value otherwise.
 func (o *FinalUnitIndication) GetFinalUnitAction() FinalUnitAction {
-	if o == nil {
+	if o == nil || IsNil(o.FinalUnitAction) {
 		var ret FinalUnitAction
 		return ret
 	}
-
-	return o.FinalUnitAction
+	return *o.FinalUnitAction
 }
 
-// GetFinalUnitActionOk returns a tuple with the FinalUnitAction field value
+// GetFinalUnitActionOk returns a tuple with the FinalUnitAction field value if set, nil otherwise
 // and a boolean to check if the value has been set.
 func (o *FinalUnitIndication) GetFinalUnitActionOk() (*FinalUnitAction, bool) {
-	if o == nil {
+	if o == nil || IsNil(o.FinalUnitAction) {
 		return nil, false
 	}
-	return &o.FinalUnitAction, true
+	return o.FinalUnitAction, true
 }
 
-// SetFinalUnitAction sets field value
+// HasFinalUnitAction returns a boolean if a field has been set.
+func (o *FinalUnitIndication) HasFinalUnitAction() bool {
+	if o != nil && !IsNil(o.FinalUnitAction) {
+		return true
+	}
+
+	return false
+}
+
+// SetFinalUnitAction gets a reference to the given FinalUnitAction and assigns it to the FinalUnitAction field.
 func (o *FinalUnitIndication) SetFinalUnitAction(v FinalUnitAction) {
-	o.FinalUnitAction = v
+	o.FinalUnitAction = &v
 }
 
 // GetRestrictionFilterRule returns the RestrictionFilterRule field value if set, zero value otherwise.
@@ -245,7 +249,9 @@ func (o FinalUnitIndication) MarshalJSON() ([]byte, error) {
 
 func (o FinalUnitIndication) ToMap() (map[string]interface{}, error) {
 	toSerialize := map[string]interface{}{}
-	toSerialize["finalUnitAction"] = o.FinalUnitAction
+	if !IsNil(o.FinalUnitAction) {
+		toSerialize["finalUnitAction"] = o.FinalUnitAction
+	}
 	if !IsNil(o.RestrictionFilterRule) {
 		toSerialize["restrictionFilterRule"] = o.RestrictionFilterRule
 	}
@@ -262,43 +268,6 @@ func (o FinalUnitIndication) ToMap() (map[string]interface{}, error) {
 		toSerialize["redirectServer"] = o.RedirectServer
 	}
 	return toSerialize, nil
-}
-
-func (o *FinalUnitIndication) UnmarshalJSON(data []byte) (err error) {
-	// This validates that all required properties are included in the JSON object
-	// by unmarshalling the object into a generic map with string keys and checking
-	// that every required field exists as a key in the generic map.
-	requiredProperties := []string{
-		"finalUnitAction",
-	}
-
-	allProperties := make(map[string]interface{})
-
-	err = json.Unmarshal(data, &allProperties)
-
-	if err != nil {
-		return err
-	}
-
-	for _, requiredProperty := range requiredProperties {
-		if _, exists := allProperties[requiredProperty]; !exists {
-			return fmt.Errorf("no value given for required property %v", requiredProperty)
-		}
-	}
-
-	varFinalUnitIndication := _FinalUnitIndication{}
-
-	// Decoded leniently: an unknown attribute does not fail the decode
-	// (scripts/postprocess_nchf_handmods.sh).
-	err = json.Unmarshal(data, &varFinalUnitIndication)
-
-	if err != nil {
-		return err
-	}
-
-	*o = FinalUnitIndication(varFinalUnitIndication)
-
-	return err
 }
 
 type NullableFinalUnitIndication struct {

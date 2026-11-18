@@ -17,6 +17,9 @@
 #      TriggerType items ANY_OTHER_SIP_MESSAGE and SIP_BYE_MESSAGE, which the
 #      spec runs together on one line, split. Merged, they generate one value
 #      that matches neither, so a CHF sending either fails the whole decode;
+#    - TS 32.291: finalUnitAction optional in FinalUnitIndication, so that an
+#      indication without one decodes; MultipleUnitInformation then drops it
+#      (scripts/postprocess_nchf_handmods.sh);
 #    - an integer whose range does not fit an int32 typed "format: int64": one
 #      whose maximum is above 2147483647, or that has a minimum but no maximum
 #      (widen_integers below), and the integers of TS 32.291 it gives no range
@@ -113,6 +116,7 @@ for spec in $(echo "${PINNED}" | cut -d' ' -f1); do
   TS32291_*)
     fix='s/application\/\s+json/application\/json/g;'
     fix+='s/^( +)- ANY_OTHER_SIP_MESSAGE +- SIP_BYE_MESSAGE\n/$1- ANY_OTHER_SIP_MESSAGE\n$1- SIP_BYE_MESSAGE\n/m;'
+    fix+='s/(\n    FinalUnitIndication:\n(?:(?!    \S).*\n)*?)      required:\n        - finalUnitAction\n/$1/;'
     fix+="s/^( +)(${WIDE_32291}):\n(\1  )type: integer\n/\$1\$2:\n\$3type: integer\n\$3format: int64\n/mg;"
     ;;
   TS29572_*)
@@ -216,6 +220,10 @@ fi
 if [ "$(perl -0777 -ne "print scalar(() = m/^ +(?:${WIDE_32291}):\\n +type: integer\\n/mg)" "${entry}")" != 11 ] ||
   [ "$(perl -0777 -ne "print scalar(() = m/^ +(?:${WIDE_32291}):\\n +type: integer\\n +format: int64\\n/mg)" "${entry}")" != 11 ]; then
   echo "ERROR: an integer of TS 32.291 listed in WIDE_32291 is not typed int64 after curation" >&2
+  exit 1
+fi
+if perl -0777 -ne 'exit(!m/\n    FinalUnitIndication:\n(?:(?!    \S).*\n)*?      required:/)' "${entry}"; then
+  echo "ERROR: FinalUnitIndication still requires finalUnitAction after curation" >&2
   exit 1
 fi
 for name in Uint32 Uint64 Uinteger ChargingId; do

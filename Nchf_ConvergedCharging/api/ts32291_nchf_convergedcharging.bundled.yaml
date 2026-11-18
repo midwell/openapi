@@ -664,8 +664,6 @@ components:
           minItems: 1
         redirectServer:
           $ref: '#/components/schemas/RedirectServer'
-      required:
-        - finalUnitAction
     RedirectServer:
       type: object
       properties:

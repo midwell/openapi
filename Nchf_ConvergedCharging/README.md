@@ -28,6 +28,8 @@ client is generated from. `scripts/curate_ts32291.sh` produces it:
      items `ANY_OTHER_SIP_MESSAGE` and `SIP_BYE_MESSAGE`, which TS 32.291 runs
      together on one line, are split. Merged, they generate one value that
      matches neither.
+   - `finalUnitAction` is optional in `FinalUnitIndication`, so that an
+     indication without one decodes (see hand-modification 6).
    - An integer whose range does not fit an `int32` is typed `int64`: one whose
      maximum is above 2147483647 (`Uint32`, `Uint64`), or that has a minimum
      but no maximum (`Uinteger`, `PacketDelBudget`), and those TS 32.291
@@ -97,6 +99,16 @@ below. A regeneration from the same source leaves `git status` clean.
    trailing punctuation, as in the other clients, and the decode branch for
    `*os.File` dropped. It wrote the body to a temporary file through a local
    copy of the pointer, so the caller never saw it; `**os.File` still works.
+6. **A final unit indication without an action is absent.** TS 32.291
+   makes `finalUnitAction` mandatory inside `finalUnitIndication`, but
+   free5gc's CHF sends an indication without an action with every grant.
+   Decoded strictly, it fails the whole answer and loses the grant beside it.
+   `MultipleUnitInformation`, the only model holding an indication, drops one
+   whose action is missing, null or empty, with whatever else it carries
+   (`HasFinalUnitIndication()` reports false); one with an action, such as
+   `TERMINATE`, is kept. An action that is not a string still fails the
+   decode. The client does not tell a dropped indication from one the CHF
+   never sent: both read as absent.
 
 Every generated file gets the repository's SPDX header and is formatted with
 `gofmt` and `gci`.
